@@ -212,45 +212,68 @@ export function JsonTreeVisualizer() {
   }, [nodes, activeNodeId]);
 
   return (
-    <div className="min-h-screen p-6">
+    <div className="min-h-screen p-3 sm:p-4 md:p-6 pt-12 sm:pt-4 md:pt-6">
       <div className="max-w-7xl mx-auto">
-        <div className="rounded-lg shadow-lg p-6 mb-6 border border-gray-200">
-          <h1 className="text-4xl font-bold mb-4 text-center">JSON Tree Visualizer</h1>
-          <div className="flex justify-center mb-4">
+        <div className="rounded-lg shadow-lg p-4 sm:p-6 mb-4 sm:mb-6 border border-gray-200">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-4 text-center">JSON Tree Visualizer</h1>
+          <div className="flex justify-center mb-3 sm:mb-4">
             <div className="w-full max-w-2xl">
-              <div className="relative flex">
+              <div className="relative flex flex-col sm:flex-row">
                 <input
                   type="text"
                   placeholder="Enter JSON Path, Eg : user.address.city"
                   value={searchText}
                   onChange={(e) => setSearchText(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && searchPath()}
-                  className="flex-1 px-4 py-2 border border-gray-300 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-inherit"
+                  className="flex-1 px-3 sm:px-4 py-2 border border-gray-300 rounded-t-lg sm:rounded-l-lg sm:rounded-t-none focus:outline-none focus:ring-2 focus:ring-blue-500 bg-inherit text-sm sm:text-base"
                 />
-                <button onClick={searchPath} className="px-6 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-r-lg font-semibold">Search</button>
+                <button 
+                  onClick={searchPath} 
+                  className="px-4 sm:px-6 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-b-lg sm:rounded-r-lg sm:rounded-b-none font-semibold text-sm sm:text-base whitespace-nowrap"
+                >
+                  Search
+                </button>
               </div>
             </div>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div className="rounded-lg shadow-lg p-6 border border-gray-200">
-            <label className="block text-lg font-semibold mb-2">Paste or type JSON data</label>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+          <div className="rounded-lg shadow-lg p-4 sm:p-6 border border-gray-200">
+            <label className="block text-base sm:text-lg font-semibold mb-2">Paste or type JSON data</label>
             <textarea
               value={jsonText}
               onChange={(e) => setJsonText(e.target.value)}
-              className="w-full h-96 p-4 border border-gray-300 rounded-lg font-mono text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none bg-inherit"
+              className="w-full h-64 sm:h-80 md:h-96 p-3 sm:p-4 border border-gray-300 rounded-lg font-mono text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none bg-inherit"
               placeholder="Enter JSON data..."
             />
-            <div className="flex gap-3 mt-4">
-              <button onClick={generateTree} className="px-6 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-semibold">Generate Tree</button>
-              <button onClick={resetAll} className="px-6 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-lg font-semibold">Reset</button>
+            <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 mt-4">
+              <button 
+                onClick={generateTree} 
+                className="px-4 sm:px-6 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-semibold text-sm sm:text-base"
+              >
+                Generate Tree
+              </button>
+              <button 
+                onClick={resetAll} 
+                className="px-4 sm:px-6 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-lg font-semibold text-sm sm:text-base"
+              >
+                Reset
+              </button>
             </div>
-            {errorText && <div className="mt-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-lg">{errorText}</div>}
-            {successText && <div className="mt-4 p-3 bg-green-100 border border-green-400 text-green-700 rounded-lg font-semibold">{successText}</div>}
+            {errorText && (
+              <div className="mt-4 p-2 sm:p-3 bg-red-100 border border-red-400 text-red-700 rounded-lg text-sm sm:text-base">
+                {errorText}
+              </div>
+            )}
+            {successText && (
+              <div className="mt-4 p-2 sm:p-3 bg-green-100 border border-green-400 text-green-700 rounded-lg font-semibold text-sm sm:text-base">
+                {successText}
+              </div>
+            )}
           </div>
 
-          <div className="rounded-lg shadow-lg overflow-hidden border border-gray-200 relative" style={{ height: "600px" }}>
+          <div className="rounded-lg shadow-lg overflow-hidden border border-gray-200 relative h-[400px] sm:h-[500px] lg:h-[600px]">
             {nodes.length > 0 ? (
               <FlowCanvas
                 ref={flowRef}
@@ -263,7 +286,9 @@ export function JsonTreeVisualizer() {
                 onDownload={downloadImage}
               />
             ) : (
-              <div className="h-full flex items-center justify-center text-gray-500">Click &quot;Generate Tree&quot; to visualize JSON</div>
+              <div className="h-full flex items-center justify-center text-gray-500 text-sm sm:text-base px-4 text-center">
+                Click &quot;Generate Tree&quot; to visualize JSON
+              </div>
             )}
           </div>
         </div>

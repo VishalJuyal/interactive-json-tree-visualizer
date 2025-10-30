@@ -39,10 +39,10 @@ export function ThemeToggle() {
   };
 
   return (
-    <div className="inline-flex items-center gap-2">
+    <div className="inline-flex items-center gap-1.5 sm:gap-2">
       <button
         onClick={handleThemeColorChange}
-        className="relative inline-flex h-6 w-11 items-center rounded-full bg-gray-300 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:bg-gray-600"
+        className="relative inline-flex h-5 w-10 sm:h-6 sm:w-11 items-center rounded-full bg-gray-300 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:bg-gray-600"
         role="switch"
         aria-checked={!!isDark}
         aria-label={isDark ? "Switch to light" : "Switch to dark"}
@@ -50,13 +50,13 @@ export function ThemeToggle() {
         suppressHydrationWarning
       >
         <span
-          className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-            isDark ? "translate-x-6" : "translate-x-1"
+          className={`inline-block h-3 w-3 sm:h-4 sm:w-4 transform rounded-full bg-white transition-transform ${
+            isDark ? "translate-x-5 sm:translate-x-6" : "translate-x-1"
           }`}
           suppressHydrationWarning
         />
       </button>
-      <span className="text-sm text-gray-800 dark:text-gray-200" suppressHydrationWarning>
+      <span className="text-xs sm:text-sm text-gray-800 dark:text-gray-200 hidden sm:inline" suppressHydrationWarning>
         {isDark ? "Dark" : "Light"}
       </span>
     </div>
