@@ -18,18 +18,18 @@ export interface GraphNode {
 }
 
 export function buildGraphFromJson(
-  data: any,
+  data: unknown,
   path: string = "$",
   x: number = 0,
   y: number = 0,
   nodes: GraphNode[] = [],
   edges: Edge[] = [],
   parentId: string | null = null,
-  seenObjects = new WeakMap()
+  seenObjects = new WeakMap<object, boolean>()
 ): { nodes: GraphNode[]; edges: Edge[]; maxY: number } {
   const nodeId = path;
   const isArray = Array.isArray(data);
-  const isObject = data !== null && typeof data === "object" && !isArray;
+  const isObject = typeof data === "object" && data !== null && !isArray;
   const isPrimitive = !isArray && !isObject;
 
   const nodeType: NodeType = isArray ? "array" : isObject ? "object" : "primitive";
@@ -47,17 +47,12 @@ export function buildGraphFromJson(
       },
     });
 
-    if (parentId) {
-      edges.push({ id: `${parentId}-${nodeId}`, source: parentId, target: nodeId });
-    }
-
+    if (parentId) edges.push({ id: `${parentId}-${nodeId}`, source: parentId, target: nodeId });
     return { nodes, edges, maxY: y };
   }
 
-  if (seenObjects.has(data)) {
-    return { nodes, edges, maxY: y };
-  }
-  seenObjects.set(data, true);
+  if (isObject && seenObjects.has(data as object)) return { nodes, edges, maxY: y };
+  if (isObject) seenObjects.set(data as object, true);
 
   nodes.push({
     id: nodeId,
@@ -70,20 +65,27 @@ export function buildGraphFromJson(
     },
   });
 
-  if (parentId) {
-    edges.push({ id: `${parentId}-${nodeId}`, source: parentId, target: nodeId });
-  }
+  if (parentId) edges.push({ id: `${parentId}-${nodeId}`, source: parentId, target: nodeId });
 
   let currentY = y + 120;
-  const keys = isArray ? Object.keys(data).map((_, i) => i) : Object.keys(data);
+  const keys = isArray ? Object.keys(data as unknown[]) : Object.keys(data as Record<string, unknown>);
   const nodeWidth = 120;
   const startX = x - ((keys.length - 1) * nodeWidth) / 2;
 
-  keys.forEach((key, index) => {
-    const childPath = isArray ? `${path}[${key}]` : `${path}.${key}`;
+  keys.forEach((rawKey, index) => {
+    const key = isArray ? Number(rawKey) : rawKey;
+    const childPath = isArray ? `${path}[${key}]` : `${path}.${String(key)}`;
     const childX = startX + index * nodeWidth;
+
+    let childValue: unknown;
+    if (isArray) {
+      childValue = (data as unknown[])[Number(key)];
+    } else {
+      childValue = (data as Record<string, unknown>)[String(key)];
+    }
+
     const result = buildGraphFromJson(
-      (data as any)?.[key],
+      childValue,
       childPath,
       childX,
       currentY,
@@ -98,17 +100,19 @@ export function buildGraphFromJson(
   return { nodes, edges, maxY: currentY };
 }
 
-export function getValueAtPath(data: any, userPath: string): any {
+export function getValueAtPath(data: unknown, userPath: string): unknown {
   const normalizedPath = userPath.trim().startsWith("$") ? userPath.trim() : "$." + userPath.trim();
   const parts = normalizedPath.slice(1).split(/[\.\[\]]+/).filter(Boolean);
 
-  let current: any = data;
+  let current: unknown = data;
   for (const part of parts) {
     if (current == null) return undefined;
     if (Array.isArray(current) || /^\d+$/.test(part)) {
-      current = current?.[parseInt(part, 10)];
+      const arr = current as unknown[];
+      current = arr[parseInt(part, 10)];
     } else {
-      current = current?.[part];
+      const obj = current as Record<string, unknown>;
+      current = obj[part];
     }
   }
   return current;

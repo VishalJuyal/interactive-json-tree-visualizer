@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useMemo, useRef } from "react";
 import dynamic from "next/dynamic";
-import { Node, Edge, applyNodeChanges, applyEdgeChanges, NodeChange, EdgeChange } from "reactflow";
+import { Node, Edge, applyNodeChanges, applyEdgeChanges, NodeChange, EdgeChange, ReactFlowInstance } from "reactflow";
 import "reactflow/dist/style.css";
 import ObjectCard from "./nodes/ObjectCard";
 import ArrayCard from "./nodes/ArrayCard";
@@ -14,7 +14,7 @@ const FlowCanvas = dynamic(() => import("./flow/FlowCanvas"), { ssr: false });
 interface JsonNode extends Node {
   data: {
     label: string;
-    value?: any;
+    value?: unknown;
     type: "object" | "array" | "primitive";
     jsonPath: string;
     highlighted?: boolean;
@@ -50,7 +50,7 @@ export function JsonTreeVisualizer() {
   const [nodes, setNodes] = useState<JsonNode[]>([]);
   const [edges, setEdges] = useState<Edge[]>([]);
   const [activeNodeId, setActiveNodeId] = useState<string | null>(null);
-  const [flow, setFlow] = useState<any>(null);
+  const [flow, setFlow] = useState<ReactFlowInstance | null>(null);
   const flowRef = useRef<HTMLDivElement>(null);
 
   const handleNodesChange = useCallback((changes: NodeChange[]) => {
@@ -72,8 +72,9 @@ export function JsonTreeVisualizer() {
       setTimeout(() => {
         if (flow && result.nodes.length > 0) flow.fitView({ padding: 0.2, duration: 300 });
       }, 200);
-    } catch (err: any) {
-      setErrorText(`Invalid JSON: ${err?.message}`);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err);
+      setErrorText(`Invalid JSON: ${msg}`);
       setNodes([]);
       setEdges([]);
     }
@@ -99,14 +100,13 @@ export function JsonTreeVisualizer() {
         setActiveNodeId(targetId);
         setSuccessText("Match found!");
         setNodes((prev) => prev.map((n) => (n.id === targetId ? { ...n, data: { ...n.data, highlighted: true } } : n)));
-        if (flow) {
-          setTimeout(() => flow.setCenter(match.position.x, match.position.y, { zoom: 1.2, duration: 800 }), 100);
-        }
+        if (flow) setTimeout(() => flow.setCenter(match.position.x, match.position.y, { zoom: 1.2, duration: 800 }), 100);
       } else {
         setErrorText("Path exists in JSON but not in visualization");
       }
-    } catch (err: any) {
-      setErrorText(`Invalid JSON or search path: ${err?.message}`);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err);
+      setErrorText(`Invalid JSON or search path: ${msg}`);
     }
   };
 
@@ -200,8 +200,9 @@ export function JsonTreeVisualizer() {
         }
         flow.setViewport(originalViewport, { duration: 300 });
       }
-    } catch (err: any) {
-      setErrorText(`Failed to download image: ${err?.message}`);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err);
+      setErrorText(`Failed to download image: ${msg}`);
       console.error("Download error:", err);
     }
   };
@@ -262,7 +263,7 @@ export function JsonTreeVisualizer() {
                 onDownload={downloadImage}
               />
             ) : (
-              <div className="h-full flex items-center justify-center text-gray-500">Click "Generate Tree" to visualize JSON</div>
+              <div className="h-full flex items-center justify-center text-gray-500">Click &quot;Generate Tree&quot; to visualize JSON</div>
             )}
           </div>
         </div>
